@@ -4,7 +4,7 @@ This project intends to be a personal finance tracker allowing users to track tr
 
 
 How It's Made:
-Tech used: Python, MySQL, ...(tbc)
+Tech used: Python, SQlite, ...(tbc)
 
 
 
