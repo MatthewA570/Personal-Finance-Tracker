@@ -1,5 +1,6 @@
 import sqlite3
 
+modifiable_attributes = ["NAME", "CATEGORY", "COST", "DATE"]
 
 def initialize_database():
 
@@ -11,7 +12,7 @@ def initialize_database():
             NAME TEXT, 
             CATEGORY TEXT,
             COST REAL,
-            DATE FLOAT);""")
+            DATE TEXT);""")
     
     curse.execute(table)
     datab.commit()
