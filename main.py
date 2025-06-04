@@ -2,8 +2,9 @@ from database import initialize_database
 from database import new_Connection
 from database import modifiable_attributes
 import models.models
+import os
 
-def add_transaction():
+def add_transaction(width):
     #Prompt user for attributes of transaction
     #TODO: Ensure attribute types given by user are of expected type 
     name = input("Name of transaction: ")
@@ -29,7 +30,7 @@ def add_transaction():
 
 
 
-def edit_transaction():
+def edit_transaction(width):
     given_ID = input("Please provide id of transaction you wish to edit: ")
     connect = new_Connection()
     cursor = connect.cursor()
@@ -73,12 +74,75 @@ def edit_transaction():
     cursor.close()
     connect.close()
 
+def remove_transaction(width):
+    given_ID = input("Please provide id of transaction you wish to remove: ")
+    connect = new_Connection()
+    cursor = connect.cursor()
+    cursor.execute("SELECT * FROM record_book WHERE ID = ?", (given_ID))
+    row = cursor.fetchone()
+    if row is None:
+        print("A transaction with that ID does not exist. Please provide an existing ID")
+    else:
+        print(f"Transaction found!\n\n{print('-' * width)}")
+        two_step = input("Are you sure you would like to remove this transaction? (YES) (NO): ")
+        if two_step.capitalize() == "NO":
+            return False
+        cursor.execute("DELETE FROM record_book WHERE ID = ?", (given_ID))
+        connect.commit()
+    cursor.close()
+    connect.close()
+
+
+def list_transactions(width):
+    connect = new_Connection()
+    cursor = connect.cursor()
+    cursor.execute("SELECT * FROM record_book ORDER BY ID")
+    rows = cursor.fetchall()
+    if rows is None:
+        print("No transactions exist for user")
+        return False
+    print(f"ID       Name                    Date            Cost\n")
+    tot_cost = 0
+    for row in rows:
+        print(f"{row['ID']}        {row['NAME']}                {row['DATE']}            {row['COST']}")
+        print('-' * width)
+        tot_cost += row['COST']
+    print(f"Transaction totals: {tot_cost}")
+    cursor.close()
+    connect.close()
+
+
+def print_help():
+    print("\n1) Add Transaction       2) View All Transactions        3) Modify Transaction       4) Remove Transaction       5) Quit\n")
 
 def main():
+    width = os.get_terminal_size().columns
+
     #Create new table record book if not existent 
     initialize_database()
-    #add_transaction()
-    edit_transaction()
+    print("\nWelcome to Personal Finance Tracker")
+    print_help()
+    while True:
+        match input("Please pick an option to continue: "):
+            case "1":
+                add_transaction(width)
+                print_help()
+            case "2":
+                list_transactions(width)
+                print_help()
+            case "3":
+                edit_transaction(width)
+                print_help()
+            case "4":
+                remove_transaction(width)
+                print_help()
+            case "5":
+                print("\nThank you for using Personal Finance Tracker")
+                return
+            case _:
+                print("\nInvalid input")
+                continue
+
 
 
 main()
